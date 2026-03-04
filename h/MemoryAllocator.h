@@ -13,14 +13,15 @@ public:
     static MemoryAllocator& getInstance(); // Singleton
 
     void* mem_alloc (size_t size);
-    int mem_free (void*);
+    int mem_free (void* ptr);
     size_t mem_get_free_space();
     size_t mem_get_largest_free_block();
 
 private:
     FreeMemoryBlock* head = nullptr;
+
     MemoryAllocator();
-    size_t toByte(size_t size);
+	void coalesce(void* ptr);
 };
 
 

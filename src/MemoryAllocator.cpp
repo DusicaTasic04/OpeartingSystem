@@ -10,40 +10,41 @@ MemoryAllocator& MemoryAllocator::getInstance() {
 }
 
 MemoryAllocator::MemoryAllocator() {
-    // Align startne adrese tako da uvek bude visa u odnosu na pravu pocetnu adresu
-    size_t start = (size_t)(HEAP_START_ADDR) - (size_t)(HEAP_START_ADDR) % MEM_BLOCK_SIZE + MEM_BLOCK_SIZE;
-    // Slicno za end, ali se ne dodaje MEM_BLOCK_SIZE da ne izadjemo iz opsega:
-    size_t end = (size_t)(HEAP_END_ADDR) - (size_t)(HEAP_END_ADDR) % MEM_BLOCK_SIZE;
+    // Align startne adrese na prvi >= memorijski blok
+    size_t start = ((size_t)HEAP_START_ADDR + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE;
+    // Slicno za end:
+    size_t end = (size_t)(HEAP_END_ADDR) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE;
 
     head = (FreeMemoryBlock*)(start); // Glava se nalazi na pocetku
     head->next = nullptr;
-    head->size = (end - start) / MEM_BLOCK_SIZE;
-}
-
-size_t MemoryAllocator::toByte(size_t size) {
-    return size * MEM_BLOCK_SIZE;
+    head->size = (end - start); // Cuvam slobodan prostor u bajtovima
 }
 
 void* MemoryAllocator::mem_alloc(size_t size) {
     if (size == 0 || !head) return nullptr;
 
-    size_t byteSize = toByte(size); // Velicina u bajtovima
     FreeMemoryBlock *tmp = head;
     FreeMemoryBlock *prev = nullptr;
 
-    while (tmp && tmp->size <= byteSize) {
+    while (tmp && tmp->size < size) {
         prev = tmp;
         tmp = tmp->next;
     }
     if (!tmp) return nullptr; // Prosli smo kroz celu listu i nema prostora
 
-    size_t remaining = tmp->size - byteSize;
-    if (remaining >= sizeof(FreeMemoryBlock) + byteSize) {
+    size_t remaining = tmp->size - size;
+    if (remaining >= sizeof(FreeMemoryBlock)) { // Da li u preostalom delu ima mesta da alociram zaglavlje strukture?
 
     }
+    if (prev)
+    	prev->next = tmp->next;
+	else
+    	head = tmp->next;
+
+    return (void*)((char*)tmp + sizeof(FreeMemoryBlock));
 }
 
-int MemoryAllocator::mem_free(void *) {
+int MemoryAllocator::mem_free(void *ptr) {
     return 0;
 }
 
