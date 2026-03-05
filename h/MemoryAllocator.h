@@ -21,7 +21,7 @@ private:
     FreeMemoryBlock* head = nullptr;
 
     MemoryAllocator();
-	void coalesce(void* ptr);
+	void coalesce(FreeMemoryBlock* prev, FreeMemoryBlock* ptr);
 };
 
 
