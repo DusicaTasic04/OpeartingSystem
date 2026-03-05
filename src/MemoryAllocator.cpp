@@ -73,8 +73,8 @@ int MemoryAllocator::mem_free(void *ptr) {
 	else
 		head = toFree;
 
-	if (prev) coalesce(prev); // Spoji prev i toFree ako su susedni elementi
-	if (tmp) coalesce(toFree); // Spoji toFree i tmp ako su susedni elementi
+	if (prev) coalesce(prev, toFree); // Spoji prev i toFree ako su susedni elementi
+	if (tmp) coalesce(toFree, tmp); // Spoji toFree i tmp ako su susedni elementi
 
     return 0; // Ocekivano ponasanje programa
 }
