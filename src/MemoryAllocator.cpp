@@ -11,9 +11,9 @@ MemoryAllocator& MemoryAllocator::getInstance() {
 
 MemoryAllocator::MemoryAllocator() {
     // Align startne adrese na prvi >= memorijski blok
-    size_t start = ((size_t)HEAP_START_ADDR + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE;
+    const size_t start = ((size_t)HEAP_START_ADDR + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE;
     // Slicno za end:
-    size_t end = (size_t)(HEAP_END_ADDR) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE;
+    const size_t end = (size_t)(HEAP_END_ADDR) / MEM_BLOCK_SIZE * MEM_BLOCK_SIZE;
 
     head = (FreeMemoryBlock*)(start); // Glava se nalazi na pocetku
     head->next = nullptr;
@@ -35,7 +35,7 @@ void* MemoryAllocator::mem_alloc(size_t size) {
 
     size_t remaining = tmp->size - size;
     if (remaining > sizeof(FreeMemoryBlock)) { // Da li u preostalom delu ima mesta da alociram zaglavlje strukture?
-		FreeMemoryBlock* newBlock = (FreeMemoryBlock*)((char*)tmp + sizeof(FreeMemoryBlock) + size);
+		auto* newBlock = (FreeMemoryBlock*)((char*)tmp + sizeof(FreeMemoryBlock) + size);
         newBlock->size = remaining - sizeof(FreeMemoryBlock);
         newBlock->next = tmp->next;
 
@@ -48,16 +48,16 @@ void* MemoryAllocator::mem_alloc(size_t size) {
     }
 	// else
     if (prev)
-    	prev->next = tmp->next;
+        prev->next = tmp->next;
 	else
-    	head = tmp->next;
+        head = tmp->next;
 
     return (void*)((char*)tmp + sizeof(FreeMemoryBlock));
 }
 
 int MemoryAllocator::mem_free(void *ptr) {
 	if (!ptr) return -1; // Ne mogu da oslobodim nullptr
-	FreeMemoryBlock* toFree = (FreeMemoryBlock*)((char*)ptr - sizeof(FreeMemoryBlock));
+	auto* toFree = (FreeMemoryBlock*)((char*)ptr - sizeof(FreeMemoryBlock));
 
 	FreeMemoryBlock* prev = nullptr;
 	FreeMemoryBlock* tmp = head;
@@ -87,7 +87,7 @@ void MemoryAllocator::coalesce(FreeMemoryBlock* prev, FreeMemoryBlock* ptr) {
     }
 }
 
-size_t MemoryAllocator::mem_get_free_space() {
+size_t MemoryAllocator::mem_get_free_space() const {
     size_t sum = 0;
     FreeMemoryBlock* tmp = head;
     while(tmp) {
@@ -97,7 +97,7 @@ size_t MemoryAllocator::mem_get_free_space() {
     return sum;
 }
 
-size_t MemoryAllocator::mem_get_largest_free_block() {
+size_t MemoryAllocator::mem_get_largest_free_block() const {
     size_t max = 0;
     FreeMemoryBlock* tmp = head;
     while(tmp) {
@@ -108,5 +108,3 @@ size_t MemoryAllocator::mem_get_largest_free_block() {
     }
     return max;
 }
-
-

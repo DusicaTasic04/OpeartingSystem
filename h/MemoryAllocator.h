@@ -14,14 +14,14 @@ public:
 
     void* mem_alloc (size_t size);
     int mem_free (void* ptr);
-    size_t mem_get_free_space();
-    size_t mem_get_largest_free_block();
+    size_t mem_get_free_space() const;
+    size_t mem_get_largest_free_block() const;
 
 private:
     FreeMemoryBlock* head = nullptr;
 
     MemoryAllocator();
-	void coalesce(FreeMemoryBlock* prev, FreeMemoryBlock* ptr);
+    static void coalesce(FreeMemoryBlock* prev, FreeMemoryBlock* ptr);
 };
 
 
