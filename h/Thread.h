@@ -9,34 +9,34 @@
 #include "../lib/hw.h"
 #include "Scheduler.h"
 
-class Thread {
+class myThread {
 public:
-    ~Thread() { delete[] stack; }
+    ~myThread() { delete[] stack; }
 
     bool isFinished() const { return finished; }
+    void setFinished(const bool value) { finished = value; }
 
-    void setFinished(bool value) { finished = value; }
+    bool isBlocked() const { return blocked; }
+    void setBlocked(const bool value) { blocked = value;}
 
     uint64 getTimeSlice() const { return timeSlice; }
 
     using Body = void (*)();
 
-    static Thread *createThread(Body body);
+    static myThread *createThread(Body body);
 
     static void yield();
 
-    static Thread *running;
+    static myThread *running;
 
 private:
-    Thread(Body body, uint64 timeSlice) :
-            body(body),
-            stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
-            context({(uint64) &threadWrapper,
-                     stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0
-                    }),
-            timeSlice(timeSlice),
-            finished(false)
-    {
+    myThread(Body body, uint64 timeSlice) :
+        body(body),
+        stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
+        context({(uint64) &threadWrapper,stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0 }),
+        timeSlice(timeSlice),
+        finished(false),
+        blocked(false) {
         if (body != nullptr) { Scheduler::getInstance().put(this); }
     }
 
@@ -50,6 +50,7 @@ private:
     Context context;
     uint64 timeSlice;
     bool finished;
+    bool blocked;
 
     friend class Riscv;
 

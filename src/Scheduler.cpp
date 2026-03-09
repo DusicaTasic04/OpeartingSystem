@@ -9,10 +9,10 @@ Scheduler& Scheduler::getInstance() {
     return sched;
 }
 
-void Scheduler::put(Thread *thread) {
+void Scheduler::put(myThread *thread) {
     readyThreadQueue.addLast(thread);
 }
 
-Thread* Scheduler::get() {
+myThread* Scheduler::get() {
     return readyThreadQueue.removeFirst();
 }

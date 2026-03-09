@@ -4,37 +4,38 @@
 
 #include "../h/Thread.h"
 
-//#include "../h/riscv.hpp"
+#include "../h/Riscv.h"
 
-Thread *Thread::running = nullptr;
+myThread *myThread::running = nullptr;
 
-uint64 Thread::timeSliceCounter = 0;
+uint64 myThread::timeSliceCounter = 0;
 
-Thread *Thread::createThread(Body body) {
-    return new Thread(body, TIME_SLICE);
+myThread *myThread::createThread(Body body) {
+    return new myThread(body, TIME_SLICE);
 }
 
-void Thread::yield() {
+void myThread::yield() {
     __asm__ volatile ("ecall");
 }
 
-void Thread::dispatch()
+void myThread::dispatch()
 {
-    Thread *old = running;
-    if (!old->isFinished()) { Scheduler::getInstance().put(old); }
+    myThread *old = running;
+    if (!old->isFinished()) {
+        Scheduler::getInstance().put(old);
+    }
     running = Scheduler::getInstance().get();
 
-    Thread::contextSwitch(&old->context, &running->context);
+    contextSwitch(&old->context, &running->context);
 }
 
-void Thread::threadWrapper() {
-    return;
-    //Riscv::popSppSpie();
+void myThread::threadWrapper() {
+    Riscv::popSppSpie();
     running->body();
     running->setFinished(true);
-    Thread::yield();
+    myThread::yield();
 }
 
-void Thread::exit() {
-
+void myThread::exit() {
+    // TODO: Get this done.
 }

@@ -7,18 +7,18 @@
 
 #include "List.h"
 
-class Thread;
+class myThread;
 
 class Scheduler {
 public:
     static Scheduler& getInstance();
 
-    void put(Thread* thread);
-    Thread* get();
+    void put(myThread* thread);
+    myThread* get();
 
 private:
     Scheduler();
-    List<Thread> readyThreadQueue;
+    List<myThread> readyThreadQueue;
 };
 
 

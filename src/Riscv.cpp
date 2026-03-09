@@ -26,8 +26,7 @@ void Riscv::handleSupervisorTrap() {
         // interrupt: yes; cause code: supervisor software interrupt (CLINT; machine timer interrupt)
         mc_sip(SIP_SSIP);
         Thread::timeSliceCounter++;
-        if (Thread::timeSliceCounter >= Thread::running->getTimeSlice())
-        {
+        if (Thread::timeSliceCounter >= Thread::running->getTimeSlice()) {
             uint64 volatile sepc = r_sepc();
             uint64 volatile sstatus = r_sstatus();
             Thread::timeSliceCounter = 0;
