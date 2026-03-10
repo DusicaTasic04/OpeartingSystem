@@ -8,6 +8,7 @@
 
 #include "../lib/hw.h"
 #include "Scheduler.h"
+#include "../h/MemoryAllocator.h"
 
 class myThread {
 public:
@@ -26,6 +27,20 @@ public:
     static void yield();
 
     static myThread *running;
+
+    void* operator new(size_t size) {
+        return MemoryAllocator::getInstance().mem_alloc(size);
+    }
+    void* operator new[](size_t size) {
+        return MemoryAllocator::getInstance().mem_alloc(size);
+    }
+
+    void operator delete(void *ptr) {
+        MemoryAllocator::getInstance().mem_free(ptr);
+    }
+    void operator delete[](void *ptr) {
+        MemoryAllocator::getInstance().mem_free(ptr);
+    }
 
 private:
     myThread(Body body, void* arg) :

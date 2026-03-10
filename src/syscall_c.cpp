@@ -118,3 +118,29 @@ int sem_signal (sem_t id) {
     return returnValue;
 }
 
+int time_sleep(time_t time) {
+    __asm__ volatile ("mv a1, %0" :: "r" (time));
+
+    __asm__ volatile ("mv a0, %0" :: "r"(TIME_SLEEP));
+    __asm__ volatile ("ecall");
+
+    int returnValue;
+    __asm__ volatile("mv %0, a0" : "=r" (returnValue));
+    return returnValue;
+}
+
+char getc() {
+    __asm__ volatile ("mv a0, %0" :: "r"(GETC));
+    __asm__ volatile ("ecall");
+
+    char returnValue;
+    __asm__ volatile("mv %0, a0" : "=r"(returnValue));
+    return returnValue;
+}
+
+void putc(char c) {
+    __asm__ volatile ("mv a1, %0" : : "r" (c));
+    __asm__ volatile ("mv a0, %0" :: "r"(PUTC));
+    __asm__ volatile ("ecall");
+}
+

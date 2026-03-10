@@ -2,10 +2,12 @@
 // Created by os on 3/8/26.
 //
 
-#ifndef PROJECT_BASE_V1_2_SYSCALL_C_H
-#define PROJECT_BASE_V1_2_SYSCALL_C_H
+#ifndef syscall_c
+#define syscall_c
 
 #include "../lib/hw.h"
+#include "../h/Semaphore.h"
+#include "../h/Thread.h"
 
 void* mem_alloc (size_t size); // 0x01
 
@@ -33,4 +35,10 @@ int sem_wait (sem_t id); //0x23
 
 int sem_signal (sem_t id); // 0x24
 
-#endif //PROJECT_BASE_V1_2_SYSCALL_C_H
+int time_sleep(time_t time); // 0x31
+
+char getc(); // 0x41
+
+void putc (char c); // 0x42
+
+#endif //syscall_c

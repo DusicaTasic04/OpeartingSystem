@@ -41,7 +41,8 @@ public:
 protected:
     PeriodicThread (time_t period);
     virtual void periodicActivation () {}
-private:   time_t period;
+private:
+    time_t period;
 };
 
 class Console {
