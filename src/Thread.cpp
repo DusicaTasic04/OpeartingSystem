@@ -34,6 +34,11 @@ void myThread::threadWrapper() {
     thread_dispatch();
 }
 
-void myThread::exit() {
-    // TODO: Get this done.
+int myThread::exit() {
+    if (running->isFinished())
+        return -1;
+
+    running->setFinished(true);
+    dispatch();
+    return 0;
 }

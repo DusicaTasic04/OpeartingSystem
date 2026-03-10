@@ -58,7 +58,7 @@ private:
 
     static void dispatch();
 
-    void exit();
+    int exit();
 
     static uint64 constexpr STACK_SIZE = DEFAULT_STACK_SIZE;
 };

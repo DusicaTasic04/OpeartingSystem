@@ -13,11 +13,7 @@ int mySemaphore::sem_close() {
     if (this->state == CLOSED) {
         return -1;
     }
-
     this->state = CLOSED;
-    //Riscv::closedSemaphores->addLast(this);
-
-    if (!blocked.getFirst()) return 0;
 
     while (blocked.getFirst()) {
         blocked.getFirst()->setBlocked(false);
