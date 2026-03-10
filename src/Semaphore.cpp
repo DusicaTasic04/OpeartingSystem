@@ -62,21 +62,6 @@ int mySemaphore::sem_signal() {
     return 0;
 }
 
-
-// void mySemaphore::wait () {
-//     lock();
-//     if (--value<0)
-//         block();
-//     unlock();
-// }
-//
-// void mySemaphore::signal () {
-//     lock();
-//     if (value++<0)
-//         deblock();
-//     unlock();
-// }
-
 // void signalWait (Semaphore* s, Semaphore* w) {
 //     lock();
 //     if (s && s->value++<0) s->deblock();

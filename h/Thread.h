@@ -19,22 +19,20 @@ public:
     bool isBlocked() const { return blocked; }
     void setBlocked(const bool value) { blocked = value;}
 
-    uint64 getTimeSlice() const { return timeSlice; }
+    using Body = void (*)(void*);
 
-    using Body = void (*)();
-
-    static myThread *createThread(Body body);
+    static myThread *createThread(Body body, void* arg);
 
     static void yield();
 
     static myThread *running;
 
 private:
-    myThread(Body body, uint64 timeSlice) :
+    myThread(Body body, void* arg) :
         body(body),
         stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
         context({(uint64) &threadWrapper,stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0 }),
-        timeSlice(timeSlice),
+        arg(arg),
         finished(false),
         blocked(false) {
         if (body != nullptr) { Scheduler::getInstance().put(this); }
@@ -48,7 +46,7 @@ private:
     Body body;
     uint64 *stack;
     Context context;
-    uint64 timeSlice;
+    void* arg;
     bool finished;
     bool blocked;
 
@@ -62,10 +60,7 @@ private:
 
     void exit();
 
-    static uint64 timeSliceCounter;
-
     static uint64 constexpr STACK_SIZE = DEFAULT_STACK_SIZE;
-    static uint64 constexpr TIME_SLICE = DEFAULT_TIME_SLICE;
 };
 
 #endif //PROJECT_BASE_V1_2_THREAD_H

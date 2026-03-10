@@ -3,23 +3,21 @@
 //
 
 #include "../h/Thread.h"
-
 #include "../h/Riscv.h"
 
 myThread *myThread::running = nullptr;
 
-uint64 myThread::timeSliceCounter = 0;
-
-myThread *myThread::createThread(Body body) {
-    return new myThread(body, TIME_SLICE);
+myThread *myThread::createThread(Body body, void* arg) {
+    myThread *newThread = new myThread(body, arg);
+    Scheduler::getInstance().put(newThread);
+    return newThread;
 }
 
 void myThread::yield() {
     __asm__ volatile ("ecall");
 }
 
-void myThread::dispatch()
-{
+void myThread::dispatch() {
     myThread *old = running;
     if (!old->isFinished()) {
         Scheduler::getInstance().put(old);
@@ -31,9 +29,9 @@ void myThread::dispatch()
 
 void myThread::threadWrapper() {
     Riscv::popSppSpie();
-    running->body();
+    running->body(running->arg);
     running->setFinished(true);
-    myThread::yield();
+    thread_dispatch();
 }
 
 void myThread::exit() {
