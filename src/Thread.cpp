@@ -9,8 +9,7 @@ myThread *myThread::main = nullptr;
 myThread *myThread::running = nullptr;
 
 myThread *myThread::createThread(Body body, void* arg, uint64* stack) {
-    myThread *newThread = new myThread(body, arg, stack);
-    Scheduler::getInstance().put(newThread);
+    auto *newThread = new myThread(body, arg, stack);
     return newThread;
 }
 

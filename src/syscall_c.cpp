@@ -7,10 +7,10 @@
 #include "../h/MemoryAllocator.h"
 
 void* mem_alloc (size_t size) {
-    size *= MEM_BLOCK_SIZE; // Zato sto moj mem_alloc vec ubacuje kao broj bajtova
-    __asm__ volatile("mv a1, %0" :: "r"(size)); // prosledim parametre
+    size = size / MEM_BLOCK_SIZE + (size % MEM_BLOCK_SIZE ? 1 : 0); // uradi padding
+    __asm__ volatile("mv a1, %0" :: "r" (size)); // prosledim parametre
 
-    __asm__ volatile ("mv a0, %0" :: "r"(MEM_ALLOC)); // u a0 premestim kod
+    __asm__ volatile ("mv a0, %0" :: "r" (MEM_ALLOC)); // u a0 premestim kod
     __asm__ volatile ("ecall"); // skok u privilegovani rezim
 
     // povratak iz privilegovanog rezima:
@@ -68,7 +68,7 @@ int thread_exit () {
     __asm__ volatile("ecall");
 
     int returnValue;
-    __asm__ volatile ("mv %0, a0":"=r" (returnValue));
+    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
     return returnValue;
 }
 
@@ -102,29 +102,29 @@ int sem_close (sem_t handle) {
 int sem_wait (sem_t id) {
     __asm__ volatile("mv a1, %0" :: "r" (id));
 
-    __asm__ volatile ("mv a0, %0" :: "r"(SEM_WAIT));
+    __asm__ volatile ("mv a0, %0" :: "r" (SEM_WAIT));
     __asm__ volatile("ecall");
 
     int returnValue;
-    __asm__ volatile ("mv %0, a0" : "=r"(returnValue));
+    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
     return returnValue;
 }
 
 int sem_signal (sem_t id) {
     __asm__ volatile("mv a1, %0" :: "r" (id));
 
-    __asm__ volatile ("mv a0, %0" :: "r"(SEM_SIGNAL));
+    __asm__ volatile ("mv a0, %0" :: "r" (SEM_SIGNAL));
     __asm__ volatile("ecall");
 
     int returnValue;
-    __asm__ volatile ("mv %0, a0" : "=r"(returnValue));
+    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
     return returnValue;
 }
 
 int time_sleep(time_t time) {
     __asm__ volatile ("mv a1, %0" :: "r" (time));
 
-    __asm__ volatile ("mv a0, %0" :: "r"(TIME_SLEEP));
+    __asm__ volatile ("mv a0, %0" :: "r" (TIME_SLEEP));
     __asm__ volatile ("ecall");
 
     int returnValue;
@@ -142,8 +142,9 @@ char getc() {
 }
 
 void putc(char c) {
-    __asm__ volatile ("mv a1, %0" : : "r" (c));
-    __asm__ volatile ("mv a0, %0" :: "r"(PUTC));
+    __asm__ volatile ("mv a1, %0" :: "r" (c));
+
+    __asm__ volatile ("mv a0, %0" :: "r" (PUTC));
     __asm__ volatile ("ecall");
 }
 

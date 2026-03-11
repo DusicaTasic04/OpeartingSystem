@@ -8,6 +8,7 @@
 #include "../h/MemoryAllocator.h"
 #include "../h/Semaphore.h"
 #include "../test/printing.hpp"
+#include "../lib/hw.h"
 
 using Body = void (*)(void*);
 
@@ -32,9 +33,9 @@ void Riscv::handleSupervisorTrap() {
                 size_t size;
                 void* ptr;
                 __asm__ volatile("mv %0, a1" : "=r" (size));
-                ptr = MemoryAllocator::getInstance().mem_alloc(size);
+                ptr = MemoryAllocator::getInstance().mem_alloc(size * MEM_BLOCK_SIZE);
 
-                __asm__ volatile("mv t0, %0" : : "r" (ptr));
+                __asm__ volatile("mv t0, %0" :: "r" (ptr));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
@@ -72,7 +73,6 @@ void Riscv::handleSupervisorTrap() {
                 __asm__ volatile ("mv %0, a2" : "=r" (body));
                 __asm__ volatile ("mv %0, a6" : "=r" (stack));
                 __asm__ volatile ("mv %0, a7" : "=r" (arg));
-
                 *t = myThread::createThread(body, arg, stack);
 
                 if (*t)
@@ -165,15 +165,18 @@ void Riscv::handleSupervisorTrap() {
     else if (scause == SOFTWARE) {
         // interrupt: yes; cause code: supervisor software interrupt (CLINT; machine timer interrupt)
         mc_sip(SIP_SSIP);
+        return;
     }
     else if (scause == EXTERNAL) {
         // interrupt: yes; cause code: supervisor external interrupt (PLIC; could be keyboard)
         console_handler();
+        return;
     }
     else {
         // unexpected trap cause
         printString("ERROR! SCAUSE:");
         printInt(scause);
         printString("\n");
+        return;
     }
 }

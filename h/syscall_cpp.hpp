@@ -27,8 +27,8 @@ protected:
     }
 
 private:
-    thread_t myHandle;
-    void (*body)(void*); void* arg;
+    thread_t myHandle{};
+    void (*body)(void*){}; void* arg{};
 };
 
 class Semaphore {

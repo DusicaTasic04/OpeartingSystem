@@ -35,6 +35,7 @@ int sem_signal (sem_t id); // 0x24
 
 int time_sleep(time_t time); // 0x31
 
+const int EOF = -1;
 char getc(); // 0x41
 
 void putc (char c); // 0x42

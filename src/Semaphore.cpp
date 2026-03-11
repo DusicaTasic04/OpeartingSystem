@@ -16,9 +16,9 @@ int mySemaphore::sem_close() {
     this->state = CLOSED;
 
     while (blocked.getFirst()) {
-        blocked.getFirst()->setBlocked(false);
-        Scheduler::getInstance().put(blocked.getFirst());
-        blocked.removeFirst();
+        myThread *t = blocked.removeFirst();
+        t->setBlocked(false);
+        Scheduler::getInstance().put(t);
     }
 
     return 0;
@@ -47,9 +47,9 @@ int mySemaphore::sem_signal() {
         return -1;
     }
 
-    if (value++ <= 0) {
-        myThread *deblocked = blocked.getFirst();
-        if (!deblocked) return -1;
+    if (++value <= 0) {
+        myThread *deblocked = blocked.removeFirst();
+        //if (!deblocked) return -1;
         deblocked->setBlocked(false);
         Scheduler::getInstance().put(deblocked);
     }

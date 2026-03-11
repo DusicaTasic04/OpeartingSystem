@@ -46,8 +46,8 @@ public:
 private:
     myThread(Body body, void* arg, uint64 *stack) :
         body(body),
-        stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
-        context({(uint64) &threadWrapper,stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0 }),
+        stack(stack == nullptr ? new uint64[STACK_SIZE] : stack),
+        context({(uint64)&threadWrapper, stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0 }),
         arg(arg),
         finished(false),
         blocked(false) {

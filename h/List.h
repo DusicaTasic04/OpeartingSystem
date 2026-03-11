@@ -14,15 +14,9 @@ public:
 
     void addFirst(T *data) {
         size++;
-        if (head) {
-            Element *e = new Element(data, head);
-            head = e;
-        }
-        else {
-            Element *e = new Element(data, nullptr);
-            head = e;
-            tail = e;
-        }
+        Element *elem = new Element(data, head);
+        head = elem;
+        if (!tail) { tail = head; }
     }
 
     void addLast(T *data) {
@@ -42,30 +36,33 @@ public:
         size--;
         if (!head) return nullptr;
 
-        const Element *e = head;
-        T* data = head->data;
+        Element *elem = head;
         head = head->next;
-        if (!head) tail = nullptr;
+        if (!head) { tail = 0; }
 
-        delete e;
-        return data;
+        T *ret = elem->data;
+        delete elem;
+        return ret;
     }
 
     T* removeLast() {
         size--;
-        if (!head) return nullptr;
+        if (!head) { return 0; }
 
-        T* data = tail->data;
-        Element *prev = nullptr;
-        Element *tmp = head;
-        while (tmp->next) {
-            prev = tmp;
-            tmp = tmp->next;
+        Element *prev = 0;
+        for (Element *curr = head; curr && curr != tail; curr = curr->next) {
+            prev = curr;
         }
 
+        Element *elem = tail;
+        if (prev) { prev->next = 0; }
+        else { head = 0; }
         tail = prev;
-        delete tmp;
-        return data;
+
+        T *ret = elem->data;
+        delete elem;
+        return ret;
+
     }
 
     T* getFirst() {
