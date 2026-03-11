@@ -70,8 +70,9 @@ void Riscv::handleSupervisorTrap() {
 
                 __asm__ volatile ("mv %0, a1" : "=r" (t));
                 __asm__ volatile ("mv %0, a2" : "=r" (body));
-                __asm__ volatile ("mv %0, a7" : "=r" (arg));
                 __asm__ volatile ("mv %0, a6" : "=r" (stack));
+                __asm__ volatile ("mv %0, a7" : "=r" (arg));
+
                 *t = myThread::createThread(body, arg, stack);
 
                 if (*t)
@@ -100,19 +101,19 @@ void Riscv::handleSupervisorTrap() {
 
                 __asm__ volatile ("mv %0, a2" : "=r" (init));
                 __asm__ volatile ("mv %0, a1" : "=r" (semHandle));
-                *semHandle = new mySemaphore(init);
+                *semHandle = mySemaphore::createSemaphore(init);
 
                 if(*semHandle != nullptr)
                     __asm__ volatile ("li t0, 0");
                 else
-                    __asm__ volatile ("sw t0, 80(x8)");
+                    __asm__ volatile ("li t0, -1");;
 
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
             case SEM_CLOSE:
                 __asm__ volatile ("mv %0, a1" : "=r" (semHandlePtr));
-                if(semHandlePtr!= nullptr) {
+                if(semHandlePtr) {
                     returnValue = semHandlePtr->sem_close();
                 }
                 else returnValue = -2;
@@ -123,23 +124,23 @@ void Riscv::handleSupervisorTrap() {
 
             case SEM_WAIT:
                 __asm__ volatile ("mv %0, a1" : "=r" (semHandlePtr));
-                if(semHandlePtr!= nullptr) {
+                if(semHandlePtr) {
                     returnValue = semHandlePtr->sem_wait();
                 }
                 else returnValue = -2;
 
-                __asm__ volatile ("mv t0, %0" : : "r" (returnValue));
+                __asm__ volatile ("mv t0, %0" :: "r" (returnValue));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
             case SEM_SIGNAL:
                 __asm__ volatile ("mv %0, a1" : "=r" (semHandlePtr));
-                if(semHandlePtr!= nullptr)
+                if(semHandlePtr)
                     returnValue = semHandlePtr->sem_signal();
                 else
                     returnValue = -2;
 
-                __asm__ volatile ("mv t0, %0" :: "r"(returnValue));
+                __asm__ volatile ("mv t0, %0" :: "r" (returnValue));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
@@ -151,7 +152,7 @@ void Riscv::handleSupervisorTrap() {
 
             case GETC:
                 returnValue = __getc();
-                __asm__ volatile ("mv t0, %0" : : "r"(returnValue));
+                __asm__ volatile ("mv t0, %0" : : "r" (returnValue));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 

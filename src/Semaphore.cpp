@@ -24,9 +24,8 @@ int mySemaphore::sem_close() {
     return 0;
 }
 
-int mySemaphore::sem_open(mySemaphore **handle, unsigned init) {
-    *handle = new mySemaphore(init);
-    return 0;
+mySemaphore *mySemaphore::createSemaphore(unsigned int init) {
+    return new mySemaphore(init);
 }
 
 int mySemaphore::sem_wait() {
@@ -37,7 +36,7 @@ int mySemaphore::sem_wait() {
     if (--value < 0) {
         myThread::running->setBlocked(true); // blokiram trenutnu nit
         blocked.addLast(myThread::running); // vracam je na kraj
-        thread_dispatch(); // promena konteksta
+        myThread::yield(); // promena konteksta
     }
 
     return 0;

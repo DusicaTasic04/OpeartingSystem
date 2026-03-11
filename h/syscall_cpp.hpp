@@ -38,7 +38,7 @@ public:
     int wait ();
     int signal ();
 private:
-    sem_t myHandle;
+    sem_t myHandle{};
 };
 
 class PeriodicThread : public Thread {

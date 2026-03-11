@@ -15,7 +15,7 @@ myThread *myThread::createThread(Body body, void* arg, uint64* stack) {
 }
 
 void myThread::yield() {
-    __asm__ volatile ("ecall");
+    dispatch();
 }
 
 void myThread::dispatch() {
@@ -39,8 +39,8 @@ void myThread::threadWrapper() {
 }
 
 int myThread::exit() {
-    if (running->isFinished())
-        return -1;
+    // if (running->isFinished())
+    //     return -1;
 
     running->setFinished(true);
     dispatch();

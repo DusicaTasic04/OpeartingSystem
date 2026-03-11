@@ -67,7 +67,7 @@ int thread_exit () {
     __asm__ volatile ("mv a0, %0" :: "r" (THREAD_EXIT));
     __asm__ volatile("ecall");
 
-    size_t returnValue;
+    int returnValue;
     __asm__ volatile ("mv %0, a0":"=r" (returnValue));
     return returnValue;
 }
@@ -91,11 +91,11 @@ int sem_open (sem_t* handle, unsigned init ) {
 int sem_close (sem_t handle) {
     __asm__ volatile("mv a1, %0" :: "r" (handle));
 
-    __asm__ volatile ("mv a0, %0" :: "r"(SEM_CLOSE));
+    __asm__ volatile ("mv a0, %0" :: "r" (SEM_CLOSE));
     __asm__ volatile("ecall");
 
     int returnValue;
-    __asm__ volatile ("mv %0, a0" : "=r"(returnValue));
+    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
     return returnValue;
 }
 
@@ -133,11 +133,11 @@ int time_sleep(time_t time) {
 }
 
 char getc() {
-    __asm__ volatile ("mv a0, %0" :: "r"(GETC));
+    __asm__ volatile ("mv a0, %0" :: "r" (GETC));
     __asm__ volatile ("ecall");
 
     char returnValue;
-    __asm__ volatile("mv %0, a0" : "=r"(returnValue));
+    __asm__ volatile("mv %0, a0" : "=r" (returnValue));
     return returnValue;
 }
 

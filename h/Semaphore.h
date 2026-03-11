@@ -2,15 +2,16 @@
 // Created by os on 3/8/26.
 //
 
-#ifndef PROJECT_BASE_V1_2_SEMAPHORE_H
-#define PROJECT_BASE_V1_2_SEMAPHORE_H
+#ifndef _Semaphore
+#define _Semaphore
 
 #include "List.h"
 #include "Thread.h"
 
 class mySemaphore {
 public:
-    mySemaphore(unsigned init);
+    explicit mySemaphore(unsigned init);
+    static mySemaphore *createSemaphore(unsigned int init = 1);
 
     enum SemaphoreState {
         OPENED,
@@ -18,7 +19,7 @@ public:
     };
 
     int sem_close ();
-    int sem_open (mySemaphore **handle, unsigned init);
+
     int sem_wait ();
     int sem_signal ();
 
@@ -43,4 +44,4 @@ private:
 };
 
 
-#endif //PROJECT_BASE_V1_2_SEMAPHORE_H
+#endif //_Semaphore
