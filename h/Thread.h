@@ -22,11 +22,12 @@ public:
 
     using Body = void (*)(void*);
 
-    static myThread *createThread(Body body, void* arg);
+    static myThread *createThread(Body body, void* arg, uint64* stack);
 
     static void yield();
 
     static myThread *running;
+    static myThread *main;
 
     void* operator new(size_t size) {
         return MemoryAllocator::getInstance().mem_alloc(size);
@@ -43,7 +44,7 @@ public:
     }
 
 private:
-    myThread(Body body, void* arg) :
+    myThread(Body body, void* arg, uint64 *stack) :
         body(body),
         stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
         context({(uint64) &threadWrapper,stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0 }),

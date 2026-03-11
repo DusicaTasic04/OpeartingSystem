@@ -3,14 +3,16 @@
 //
 
 #include "../h/syscall_cpp.hpp"
+#include "../h/syscall_c.hpp"
+#include "../h/Thread.h"
 
-void* operator new (size_t size) {
-    return mem_alloc(size);
-}
-
-void operator delete (void* ptr) {
-    mem_free(ptr);
-}
+// void* operator new (size_t size) {
+//     return mem_alloc(size);
+// }
+//
+// void operator delete (void* ptr) {
+//     mem_free(ptr);
+// }
 
 Semaphore::Semaphore(unsigned int init) {
     sem_open(&this->myHandle, init);
@@ -36,6 +38,9 @@ Thread::Thread(void (*body)(void *), void *arg) {
     thread_create(&this->myHandle, body, arg);
 }
 
+Thread::Thread() :
+    myHandle(nullptr), body(runWrapper), arg(this) {}
+
 Thread::~Thread() {
     delete myHandle;
 }
@@ -45,7 +50,7 @@ int Thread::start() {
 }
 
 int Thread::sleep(time_t time) {
-    return 0;
+    return time_sleep(time);
 }
 
 void Console::putc(char c) {

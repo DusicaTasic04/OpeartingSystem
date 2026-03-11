@@ -2,13 +2,13 @@
 // Created by os on 3/8/26.
 //
 
-#ifndef _syscall_cpp
-#define _syscall_cpp
+#ifndef syscall_cpp
+#define syscall_cpp
 
 #include "syscall_c.hpp"
 
 void* operator new (size_t);
-void  operator delete (void*);
+void  operator delete (void*) noexcept;
 
 class Thread {
 public:
@@ -20,6 +20,12 @@ public:
 protected:
     Thread ();
     virtual void run () {}
+    static void runWrapper(void* thread) {
+        if (thread) {
+            ((Thread*)thread)->run();
+        }
+    }
+
 private:
     thread_t myHandle;
     void (*body)(void*); void* arg;
@@ -51,4 +57,4 @@ public:
     static void putc (char);
 };
 
-#endif _syscall_cpp
+#endif //syscall_cpp

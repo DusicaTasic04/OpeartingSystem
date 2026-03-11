@@ -4,6 +4,7 @@
 
 #include "../h/syscall_c.hpp"
 #include "../h/Riscv.h"
+#include "../h/MemoryAllocator.h"
 
 void* mem_alloc (size_t size) {
     size *= MEM_BLOCK_SIZE; // Zato sto moj mem_alloc vec ubacuje kao broj bajtova
@@ -47,7 +48,9 @@ size_t mem_get_largest_free_block() {
     return returnValue;
 }
 
-int thread_create (thread_t* handle, void(*start_routine)(void*), void* arg ) {
+int thread_create (thread_t* handle, void(*start_routine)(void*), void* arg) {
+    void* stack = MemoryAllocator::getInstance().mem_alloc(DEFAULT_STACK_SIZE * sizeof(uint64));
+    __asm__ volatile("mv a6, %0" :: "r" (stack));
     __asm__ volatile("mv a7, %0" :: "r" (arg));
     __asm__ volatile("mv a2, %0" :: "r" (start_routine));
     __asm__ volatile("mv a1, %0" :: "r" (handle));

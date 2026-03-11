@@ -6,8 +6,6 @@
 #define syscall_c
 
 #include "../lib/hw.h"
-#include "../h/Semaphore.h"
-#include "../h/Thread.h"
 
 void* mem_alloc (size_t size); // 0x01
 

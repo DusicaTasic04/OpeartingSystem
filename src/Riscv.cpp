@@ -7,7 +7,7 @@
 #include "../lib/console.h"
 #include "../h/MemoryAllocator.h"
 #include "../h/Semaphore.h"
-#include "../h/Print.h"
+#include "../test/printing.hpp"
 
 using Body = void (*)(void*);
 
@@ -66,11 +66,13 @@ void Riscv::handleSupervisorTrap() {
                 myThread** t;
                 Body body;
                 void* arg;
+                uint64* stack;
 
                 __asm__ volatile ("mv %0, a1" : "=r" (t));
                 __asm__ volatile ("mv %0, a2" : "=r" (body));
                 __asm__ volatile ("mv %0, a7" : "=r" (arg));
-                *t = myThread::createThread(body, arg);
+                __asm__ volatile ("mv %0, a6" : "=r" (stack));
+                *t = myThread::createThread(body, arg, stack);
 
                 if (*t)
                     __asm__ volatile ("li t0, 0");
@@ -170,7 +172,7 @@ void Riscv::handleSupervisorTrap() {
     else {
         // unexpected trap cause
         printString("ERROR! SCAUSE:");
-        printInteger(scause);
+        printInt(scause);
         printString("\n");
     }
 }

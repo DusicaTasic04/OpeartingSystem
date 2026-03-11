@@ -4,6 +4,8 @@
 
 #include "../h/Scheduler.h"
 
+Scheduler::Scheduler() {}
+
 Scheduler& Scheduler::getInstance() {
     static Scheduler sched;
     return sched;
