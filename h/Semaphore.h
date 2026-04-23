@@ -36,7 +36,7 @@ public:
     }
 
 protected:
-    uint64 value;
+    long value;
     SemaphoreState state;
 
 private:

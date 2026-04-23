@@ -5,36 +5,32 @@
 #ifndef PROJECT_BASE_V1_2_LIST_H
 #define PROJECT_BASE_V1_2_LIST_H
 
-#include "syscall_cpp.hpp"
 
 template <typename T>
 class List {
 public:
-    List() : size(0), head(nullptr), tail(nullptr) {} // Konstruktor
+    List() : head(nullptr), tail(nullptr) {} // Konstruktor
 
     void addFirst(T *data) {
-        size++;
         Element *elem = new Element(data, head);
         head = elem;
         if (!tail) { tail = head; }
     }
 
     void addLast(T *data) {
-        size++;
         Element *e = new Element(data, nullptr);
         if (tail) {
             tail->next = e;
             tail = e;
         }
         else {
-            head = e;
-            tail = e;
+            head = tail = e;
         }
+
     }
 
     T* removeFirst() {
-        size--;
-        if (!head) return nullptr;
+        if (!head) { return 0; }
 
         Element *elem = head;
         head = head->next;
@@ -46,7 +42,6 @@ public:
     }
 
     T* removeLast() {
-        size--;
         if (!head) { return 0; }
 
         Element *prev = 0;
@@ -62,7 +57,6 @@ public:
         T *ret = elem->data;
         delete elem;
         return ret;
-
     }
 
     T* getFirst() {
@@ -71,10 +65,6 @@ public:
 
     T* getLast() {
         return tail ? tail->data : nullptr;
-    }
-
-    int getSize() const {
-        return size;
     }
 
 private:
@@ -86,7 +76,6 @@ private:
         Element(T *data, Element *next) : data(data), next(next) {}
     };
 
-    int size;
     Element *head, *tail;
 };
 

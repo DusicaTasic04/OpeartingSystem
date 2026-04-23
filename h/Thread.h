@@ -26,32 +26,33 @@ public:
 
     static void yield();
 
-    static myThread *running;
-    static myThread *main;
+    static myThread *running, *main;
 
     void* operator new(size_t size) {
-        return MemoryAllocator::getInstance().mem_alloc(size);
+        return MemoryAllocator::getInstance()->mem_alloc(size);
     }
     void* operator new[](size_t size) {
-        return MemoryAllocator::getInstance().mem_alloc(size);
+        return MemoryAllocator::getInstance()->mem_alloc(size);
     }
 
     void operator delete(void *ptr) {
-        MemoryAllocator::getInstance().mem_free(ptr);
+        MemoryAllocator::getInstance()->mem_free(ptr);
     }
     void operator delete[](void *ptr) {
-        MemoryAllocator::getInstance().mem_free(ptr);
+        MemoryAllocator::getInstance()->mem_free(ptr);
     }
 
 private:
-    myThread(Body body, void* arg, uint64 *stack) :
+    explicit myThread(Body body, void* arg, uint64 *stack) :
         body(body),
         stack(stack == nullptr ? new uint64[STACK_SIZE] : stack),
-        context({(uint64)&threadWrapper, stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0 }),
-        arg(arg),
+        context({(uint64)&threadWrapper,
+                 stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0
+                }),
         finished(false),
-        blocked(false) {
-        if (body != nullptr) { Scheduler::getInstance().put(this); }
+        blocked(false),
+        arg(arg) {
+            if (body != nullptr) { Scheduler::getInstance().put(this); }
     }
 
     struct Context {
@@ -62,9 +63,9 @@ private:
     Body body;
     uint64 *stack;
     Context context;
-    void* arg;
     bool finished;
     bool blocked;
+    void* arg;
 
     friend class Riscv;
 
@@ -74,7 +75,7 @@ private:
 
     static void dispatch();
 
-    int exit();
+    static int exit();
 
     static uint64 constexpr STACK_SIZE = DEFAULT_STACK_SIZE;
 };

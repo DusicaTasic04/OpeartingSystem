@@ -10,7 +10,7 @@ struct FreeMemoryBlock {
 
 class MemoryAllocator {
 public:
-    static MemoryAllocator& getInstance(); // Singleton
+    static MemoryAllocator* getInstance(); // Singleton
 
     void* mem_alloc (size_t size);
     int mem_free (void* ptr);
@@ -21,7 +21,7 @@ private:
     FreeMemoryBlock* head = nullptr;
 
     MemoryAllocator();
-    static void coalesce(FreeMemoryBlock* prev, FreeMemoryBlock* ptr);
+    static int coalesce(FreeMemoryBlock* ptr);
 };
 
 
