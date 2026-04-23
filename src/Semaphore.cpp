@@ -34,8 +34,9 @@ int mySemaphore::sem_wait() {
     }
 
     if (--value < 0) {
-        myThread::running->setBlocked(true); // blokiram trenutnu nit
+
         blocked.addLast(myThread::running); // vracam je na kraj
+        myThread::running->setBlocked(true); // blokiram trenutnu nit
         myThread::yield(); // promena konteksta
     }
 

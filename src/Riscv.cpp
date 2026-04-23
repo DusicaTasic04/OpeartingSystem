@@ -26,14 +26,16 @@ void Riscv::handleSupervisorTrap() {
         uint64 volatile sstatus = r_sstatus();
 
         uint64 returnValue;
+        size_t returnSize;
         mySemaphore* semHandlePtr;
         uint64 code = r_a0();
+
         switch (code) {
             case MEM_ALLOC:
                 size_t size;
                 void* ptr;
                 __asm__ volatile("mv %0, a1" : "=r" (size));
-                ptr = MemoryAllocator::getInstance().mem_alloc(size * MEM_BLOCK_SIZE);
+                ptr = MemoryAllocator::getInstance()->mem_alloc(size * MEM_BLOCK_SIZE);
 
                 __asm__ volatile("mv t0, %0" :: "r" (ptr));
                 __asm__ volatile ("sw t0, 80(x8)");
@@ -43,23 +45,23 @@ void Riscv::handleSupervisorTrap() {
                 void* memptr;
                 __asm__ volatile("mv %0, a1" : "=r" (memptr));
 
-                returnValue = MemoryAllocator::getInstance().mem_free(memptr);
+                returnValue = MemoryAllocator::getInstance()->mem_free(memptr);
 
                 __asm__ volatile("mv t0, %0" : : "r"(returnValue));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
             case MEM_GET_FREE_SPACE:
-                returnValue = MemoryAllocator::getInstance().mem_get_free_space();
+                returnSize = MemoryAllocator::getInstance()->mem_get_free_space();
 
-                __asm__ volatile ("mv t0, %0" : : "r" (returnValue));
+                __asm__ volatile ("mv t0, %0" : : "r" (returnSize));
                 __asm__ volatile ("sw t0, 80(x8)");
 
                 break;
             case MEM_GET_LARGEST_FREE_BLOCK:
-                returnValue = MemoryAllocator::getInstance().mem_get_largest_free_block();
+                returnSize = MemoryAllocator::getInstance()->mem_get_largest_free_block();
 
-                __asm__ volatile ("mv t0, %0" : : "r" (returnValue));
+                __asm__ volatile ("mv t0, %0" : : "r" (returnSize));
                 __asm__ volatile ("sw t0, 80(x8)");
 
                 break;
@@ -84,10 +86,9 @@ void Riscv::handleSupervisorTrap() {
                 break;
 
             case THREAD_EXIT:
-                myThread::running->setFinished(true);
-                myThread::dispatch();
+                returnValue = myThread::exit();
 
-                __asm__ volatile ("li t0, 0");
+                __asm__ volatile ("mv t0, %0" :: "r" (returnValue));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
@@ -155,12 +156,10 @@ void Riscv::handleSupervisorTrap() {
                 __asm__ volatile ("mv t0, %0" : : "r" (returnValue));
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
-
-            default: // ovo ne bi smelo da se dogodi
-                break;
         }
         w_sstatus(sstatus);
         w_sepc(sepc);
+        return;
     }
     else if (scause == SOFTWARE) {
         // interrupt: yes; cause code: supervisor software interrupt (CLINT; machine timer interrupt)
@@ -174,9 +173,11 @@ void Riscv::handleSupervisorTrap() {
     }
     else {
         // unexpected trap cause
-        printString("ERROR! SCAUSE:");
+        printString("Error code: ");
         printInt(scause);
-        printString("\n");
+        printString(" (BNT = ");
+        printInt(scause >> 63);
+        printString(")\n");
         return;
     }
 }

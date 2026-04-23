@@ -1,6 +1,6 @@
 .extern _ZN5Riscv20handleSupervisorTrapEv
 
-.align 4
+.align 2
 .global _ZN5Riscv14supervisorTrapEv
 .type _ZN5Riscv14supervisorTrapEv, @function
 _ZN5Riscv14supervisorTrapEv:

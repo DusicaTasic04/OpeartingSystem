@@ -49,7 +49,7 @@ size_t mem_get_largest_free_block() {
 }
 
 int thread_create (thread_t* handle, void(*start_routine)(void*), void* arg) {
-    void* stack = MemoryAllocator::getInstance().mem_alloc(DEFAULT_STACK_SIZE * sizeof(uint64));
+    void* stack = MemoryAllocator::getInstance()->mem_alloc(DEFAULT_STACK_SIZE * sizeof(uint64));
     __asm__ volatile("mv a6, %0" :: "r" (stack));
     __asm__ volatile("mv a7, %0" :: "r" (arg));
     __asm__ volatile("mv a2, %0" :: "r" (start_routine));
@@ -82,6 +82,7 @@ int sem_open (sem_t* handle, unsigned init ) {
     __asm__ volatile("mv a1, %0" :: "r" (handle));
 
     __asm__ volatile ("mv a0, %0" :: "r" (SEM_OPEN));
+    __asm__ volatile("ecall");
 
     int returnValue;
     __asm__ volatile ("mv %0, a0" : "=r" (returnValue));

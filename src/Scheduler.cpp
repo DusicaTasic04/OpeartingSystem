@@ -4,7 +4,7 @@
 
 #include "../h/Scheduler.h"
 
-Scheduler::Scheduler() {}
+Scheduler::Scheduler() = default;
 
 Scheduler& Scheduler::getInstance() {
     static Scheduler sched;

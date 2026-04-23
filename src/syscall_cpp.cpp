@@ -34,9 +34,8 @@ void Thread::dispatch() {
     thread_dispatch();
 }
 
-Thread::Thread(void (*body)(void *), void *arg) {
-    thread_create(&this->myHandle, body, arg);
-}
+Thread::Thread(void (*body)(void *), void *arg) :
+    myHandle(nullptr), body(body), arg(arg) {}
 
 Thread::Thread() :
     myHandle(nullptr), body(runWrapper), arg(this) {}

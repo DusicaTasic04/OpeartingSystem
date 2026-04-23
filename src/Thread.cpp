@@ -4,6 +4,8 @@
 
 #include "../h/Thread.h"
 #include "../h/Riscv.h"
+#include "../h/syscall_c.hpp"
+#include "../test/printing.hpp"
 
 myThread *myThread::main = nullptr;
 myThread *myThread::running = nullptr;
@@ -14,7 +16,7 @@ myThread *myThread::createThread(Body body, void* arg, uint64* stack) {
 }
 
 void myThread::yield() {
-    dispatch();
+    thread_dispatch();
 }
 
 void myThread::dispatch() {
@@ -34,7 +36,7 @@ void myThread::threadWrapper() {
     Riscv::popSppSpie();
     running->body(running->arg);
     running->setFinished(true);
-    thread_dispatch();
+    yield();
 }
 
 int myThread::exit() {

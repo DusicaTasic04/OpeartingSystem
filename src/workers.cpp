@@ -2,13 +2,13 @@
 // Created by os on 3/11/26.
 //
 
-#include "../h/workers.hpp"
+//#include "../h/workers.hpp"
 
 #include "../lib/hw.h"
 #include "../h/Thread.h"
 #include "../h/Semaphore.h"
 #include "../test/printing.hpp"
-
+/*
 static uint64 fibonacci(uint64 n)
 {
     if (n == 0 || n == 1) { return n; }
@@ -100,3 +100,4 @@ void workerBodyD(void*) {
     myThread::running->setFinished(true);
     thread_dispatch();
 }
+*/
