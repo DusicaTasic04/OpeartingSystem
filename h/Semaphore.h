@@ -22,6 +22,13 @@ public:
 
     int sem_wait ();
     int sem_signal ();
+    int sem_wait_n(unsigned n) volatile;
+
+    void tryUnblock() volatile;
+
+    int sem_signal_n(unsigned n) volatile;
+
+    void block(unsigned n) volatile;
 
     uint64 getValue() const {
         return value;
@@ -33,6 +40,20 @@ public:
 
     void setState(const SemaphoreState s) {
         this->state = s;
+    }
+
+    void* operator new(size_t size) {
+        return MemoryAllocator::getInstance()->mem_alloc(size);
+    }
+    void* operator new[](size_t size) {
+        return MemoryAllocator::getInstance()->mem_alloc(size);
+    }
+
+    void operator delete(void *ptr) {
+        MemoryAllocator::getInstance()->mem_free(ptr);
+    }
+    void operator delete[](void *ptr) {
+        MemoryAllocator::getInstance()->mem_free(ptr);
     }
 
 protected:

@@ -17,8 +17,6 @@ enum Interruptions {
 enum Codes {
     MEM_ALLOC = 0x01,
     MEM_FREE = 0x02,
-    MEM_GET_FREE_SPACE = 0x03,
-    MEM_GET_LARGEST_FREE_BLOCK = 0x04,
     THREAD_CREATE = 0x11,
     THREAD_EXIT = 0x12,
     THREAD_DISPATCH = 0x13,
@@ -26,6 +24,8 @@ enum Codes {
     SEM_CLOSE = 0x22,
     SEM_WAIT = 0x23,
     SEM_SIGNAL = 0x24,
+    SEM_WAIT_N = 0x25,
+    SEM_SIGNAL_N = 0x26,
     TIME_SLEEP = 0x31,
     GETC = 0x41,
     PUTC = 0x42
@@ -33,6 +33,9 @@ enum Codes {
 
 class Riscv {
 public:
+
+    // stops the processor
+    static void halt();
 
     // pop sstatus.spp and sstatus.spie bits (has to be a non inline function)
     static void popSppSpie();

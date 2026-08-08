@@ -11,13 +11,13 @@ class List {
 public:
     List() : head(nullptr), tail(nullptr) {} // Konstruktor
 
-    void addFirst(T *data) {
+    void addFirst(T *data) volatile {
         Element *elem = new Element(data, head);
         head = elem;
         if (!tail) { tail = head; }
     }
 
-    void addLast(T *data) {
+    void addLast(T *data) volatile {
         Element *e = new Element(data, nullptr);
         if (tail) {
             tail->next = e;
@@ -29,7 +29,7 @@ public:
 
     }
 
-    T* removeFirst() {
+    T* removeFirst() volatile {
         if (!head) { return 0; }
 
         Element *elem = head;
@@ -41,7 +41,7 @@ public:
         return ret;
     }
 
-    T* removeLast() {
+    T* removeLast() volatile {
         if (!head) { return 0; }
 
         Element *prev = 0;
@@ -59,11 +59,11 @@ public:
         return ret;
     }
 
-    T* getFirst() {
+    T* getFirst() volatile {
         return head ? head->data : nullptr;
     }
 
-    T* getLast() {
+    T* getLast() volatile {
         return tail ? tail->data : nullptr;
     }
 

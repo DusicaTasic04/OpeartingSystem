@@ -42,6 +42,8 @@ public:
         MemoryAllocator::getInstance()->mem_free(ptr);
     }
 
+    int waitingFor = 0;
+
 private:
     explicit myThread(Body body, void* arg, uint64 *stack) :
         body(body),
@@ -68,6 +70,7 @@ private:
     void* arg;
 
     friend class Riscv;
+    friend class mySemaphore;
 
     static void threadWrapper();
 
@@ -78,6 +81,7 @@ private:
     static int exit();
 
     static uint64 constexpr STACK_SIZE = DEFAULT_STACK_SIZE;
+
 };
 
 #endif //PROJECT_BASE_V1_2_THREAD_H
