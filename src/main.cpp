@@ -30,5 +30,8 @@ int main() {
     Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
     delete mainThread;
     delete userMainThread;
+
+    Riscv::halt();
+
     return 0;
 }

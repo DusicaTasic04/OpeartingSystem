@@ -29,38 +29,121 @@ mySemaphore *mySemaphore::createSemaphore(unsigned int init) {
 }
 
 int mySemaphore::sem_wait() {
-    if (this->state == CLOSED) {
-        return -1;
-    }
+    // projekat iz 2025. godine
 
-    if (--value < 0) {
+    // if (this->state == CLOSED) {
+    //     return -1;
+    // }
+    //
+    // myThread::running->waitingFor = 1;
+    //
+    // if (--value < 0) {
+    //
+    //     blocked.addLast(myThread::running); // vracam je na kraj
+    //     myThread::running->setBlocked(true); // blokiram trenutnu nit
+    //     myThread::yield(); // promena konteksta
+    // }
+    //
+    // return 0;
 
-        blocked.addLast(myThread::running); // vracam je na kraj
-        myThread::running->setBlocked(true); // blokiram trenutnu nit
-        myThread::yield(); // promena konteksta
-    }
-
-    return 0;
+    return sem_wait_n(1);
 }
 
 int mySemaphore::sem_signal() {
+    // projekat iz 2025. godine
+
+    // if (this->state == CLOSED) {
+    //     return -1;
+    // }
+    //
+    // if (++value <= 0) {
+    //     myThread *deblocked = blocked.removeFirst();
+    //     //if (!deblocked) return -1;
+    //     deblocked->setBlocked(false);
+    //     Scheduler::getInstance().put(deblocked);
+    // }
+    //
+    // return 0;
+
+    return sem_signal_n(1);
+}
+
+int mySemaphore::sem_wait_n(unsigned n) volatile {
     if (this->state == CLOSED) {
         return -1;
     }
 
-    if (++value <= 0) {
-        myThread *deblocked = blocked.removeFirst();
-        //if (!deblocked) return -1;
-        deblocked->setBlocked(false);
-        Scheduler::getInstance().put(deblocked);
+    if (n == 0) return 0;
+
+    if (blocked.getFirst() || value < (int)n) {
+        block(n);
+        if (myThread::running->isBlocked()) {
+            myThread::running->setBlocked(false);
+            return -1;
+        }
+        return 0;
     }
 
+    value -= (int)n;
     return 0;
 }
 
-// void signalWait (Semaphore* s, Semaphore* w) {
-//     lock();
-//     if (s && s->value++<0) s->deblock();
-//     if (w && --w->value<0) w->block();
-//     unlock();
-// }
+void mySemaphore::tryUnblock() volatile {
+    myThread* unblockedThread = blocked.removeFirst();
+    if (!unblockedThread) return;
+    value -= unblockedThread->waitingFor;
+    unblockedThread->waitingFor = 0;
+    unblockedThread->setBlocked(false);
+    Scheduler::getInstance().put(unblockedThread);
+}
+
+int mySemaphore::sem_signal_n(unsigned n) volatile {
+
+    // if (n == 0) return 0;
+    // val += (int)n;
+    // while (blockedThreadsQueue.peekFirst() &&
+    //        val >= (int)blockedThreadsQueue.peekFirst()->getSemaphoreRequest()) {
+    //     tryUnblock();
+    //        }
+    // return 0;
+
+
+    if (this->state == CLOSED) {
+        return -1;
+    }
+
+    if (n == 0) return 0;
+
+    value += (int)n;
+
+    while (blocked.getFirst() && value >= blocked.getFirst()->waitingFor) {
+        tryUnblock();
+    }
+
+    return 0;
+    // while (true) {
+    //     myThread* t = blocked.getFirst();
+    //     if (!t) break;
+    //
+    //     if (value >= t->waitingFor) {
+    //         blocked.removeFirst();
+    //
+    //         value -= t->waitingFor;
+    //
+    //         t->setBlocked(false);
+    //         Scheduler::getInstance().put(t);
+    //     } else {
+    //         break;
+    //     }
+    // }
+    return 0;
+}
+
+void mySemaphore::block(unsigned n) volatile {
+    myThread* old = myThread::running;
+    old->setBlocked(true);
+    old->waitingFor = n;
+    blocked.addLast(old);
+    myThread::running = Scheduler::getInstance().get();
+    myThread::contextSwitch(&old->context, &myThread::running->context);
+}

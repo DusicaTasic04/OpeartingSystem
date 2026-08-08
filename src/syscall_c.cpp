@@ -30,23 +30,23 @@ int mem_free(void* ptr) {
     return returnValue;
 }
 
-size_t mem_get_free_space() {
-    __asm__ volatile ("mv a0, %0" :: "r" (MEM_GET_FREE_SPACE));
-    __asm__ volatile ("ecall");
-
-    size_t returnValue;
-    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
-    return returnValue;
-}
-
-size_t mem_get_largest_free_block() {
-    __asm__ volatile ("mv a0, %0" :: "r" (MEM_GET_LARGEST_FREE_BLOCK));
-    __asm__ volatile ("ecall");
-
-    size_t returnValue;
-    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
-    return returnValue;
-}
+// size_t mem_get_free_space() {
+//     __asm__ volatile ("mv a0, %0" :: "r" (MEM_GET_FREE_SPACE));
+//     __asm__ volatile ("ecall");
+//
+//     size_t returnValue;
+//     __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
+//     return returnValue;
+// }
+//
+// size_t mem_get_largest_free_block() {
+//     __asm__ volatile ("mv a0, %0" :: "r" (MEM_GET_LARGEST_FREE_BLOCK));
+//     __asm__ volatile ("ecall");
+//
+//     size_t returnValue;
+//     __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
+//     return returnValue;
+// }
 
 int thread_create (thread_t* handle, void(*start_routine)(void*), void* arg) {
     void* stack = MemoryAllocator::getInstance()->mem_alloc(DEFAULT_STACK_SIZE * sizeof(uint64));
@@ -115,6 +115,30 @@ int sem_signal (sem_t id) {
     __asm__ volatile("mv a1, %0" :: "r" (id));
 
     __asm__ volatile ("mv a0, %0" :: "r" (SEM_SIGNAL));
+    __asm__ volatile("ecall");
+
+    int returnValue;
+    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
+    return returnValue;
+}
+
+int sem_wait_n (sem_t id, unsigned n) {
+    __asm__ volatile("mv a3, %0" :: "r" (id));
+    __asm__ volatile("mv a6, %0" :: "r" (n));
+
+    __asm__ volatile ("mv a0, %0" :: "r" (SEM_WAIT_N));
+    __asm__ volatile("ecall");
+
+    int returnValue;
+    __asm__ volatile ("mv %0, a0" : "=r" (returnValue));
+    return returnValue;
+}
+
+int sem_signal_n (sem_t id, unsigned n) {
+    __asm__ volatile("mv a3, %0" :: "r" (id));
+    __asm__ volatile("mv a6, %0" :: "r" (n));
+
+    __asm__ volatile ("mv a0, %0" :: "r" (SEM_SIGNAL_N));
     __asm__ volatile("ecall");
 
     int returnValue;

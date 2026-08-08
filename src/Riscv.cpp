@@ -17,6 +17,12 @@ void Riscv::popSppSpie() {
     __asm__ volatile("sret");
 }
 
+void Riscv::halt() {
+    uint32 value = 0x5555;
+    auto* address = (uint32*)(0x100000UL);
+    *address = value;
+}
+
 void Riscv::handleSupervisorTrap() {
     uint64 scause = r_scause();
 
@@ -25,8 +31,8 @@ void Riscv::handleSupervisorTrap() {
         uint64 volatile sepc = r_sepc() + 4;
         uint64 volatile sstatus = r_sstatus();
 
-        uint64 returnValue;
-        size_t returnSize;
+        int returnValue;
+        //size_t returnSize;
         mySemaphore* semHandlePtr;
         uint64 code = r_a0();
 
@@ -51,20 +57,6 @@ void Riscv::handleSupervisorTrap() {
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
-            case MEM_GET_FREE_SPACE:
-                returnSize = MemoryAllocator::getInstance()->mem_get_free_space();
-
-                __asm__ volatile ("mv t0, %0" : : "r" (returnSize));
-                __asm__ volatile ("sw t0, 80(x8)");
-
-                break;
-            case MEM_GET_LARGEST_FREE_BLOCK:
-                returnSize = MemoryAllocator::getInstance()->mem_get_largest_free_block();
-
-                __asm__ volatile ("mv t0, %0" : : "r" (returnSize));
-                __asm__ volatile ("sw t0, 80(x8)");
-
-                break;
             case THREAD_CREATE:
                 myThread** t;
                 Body body;
@@ -145,6 +137,31 @@ void Riscv::handleSupervisorTrap() {
                 __asm__ volatile ("sw t0, 80(x8)");
                 break;
 
+            case SEM_WAIT_N:
+                unsigned n;
+                __asm__ volatile ("mv %0, a6" : "=r" (n));
+                __asm__ volatile ("mv %0, a3" : "=r" (semHandlePtr));
+                if(semHandlePtr)
+                    returnValue = semHandlePtr->sem_wait_n(n);
+                else
+                    returnValue = -2;
+
+                __asm__ volatile ("mv t0, %0" :: "r" (returnValue));
+                __asm__ volatile ("sw t0, 80(x8)");
+                break;
+
+            case SEM_SIGNAL_N:
+                __asm__ volatile ("mv %0, a6" : "=r" (n));
+                __asm__ volatile ("mv %0, a3" : "=r" (semHandlePtr));
+                if(semHandlePtr)
+                    returnValue = semHandlePtr->sem_signal_n(n);
+                else
+                    returnValue = -2;
+
+                __asm__ volatile ("mv t0, %0" :: "r" (returnValue));
+                __asm__ volatile ("sw t0, 80(x8)");
+                break;
+
             case PUTC:
                 char c;
                 __asm__ volatile ("mv %0, a1" : "=r" (c));
@@ -178,6 +195,12 @@ void Riscv::handleSupervisorTrap() {
         printString(" (BNT = ");
         printInt(scause >> 63);
         printString(")\n");
+
+        printString(" sepc=");
+        printInt(Riscv::r_sepc());
+        printString(" stval=");
+        printInt(Riscv::r_stval());
+        printString("\n");
         return;
     }
 }

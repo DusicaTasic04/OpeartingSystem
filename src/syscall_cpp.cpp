@@ -30,6 +30,14 @@ int Semaphore::signal() {
     return sem_signal(this->myHandle);
 }
 
+int Semaphore::wait_n(unsigned n) {
+    return sem_wait_n(this->myHandle, n);
+}
+
+int Semaphore::signal_n(unsigned n) {
+    return sem_signal_n(this->myHandle, n);
+}
+
 void Thread::dispatch() {
     thread_dispatch();
 }
